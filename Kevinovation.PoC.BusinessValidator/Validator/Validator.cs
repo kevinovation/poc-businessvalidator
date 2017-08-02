@@ -7,11 +7,11 @@ using System.Reflection;
 
 namespace Kevinovation.PoC.BusinessValidator.Validator
 {
-    public abstract class Validator/*<T> where T : class*/ : IValidator, IDisposable
+    public abstract class Validator<T> : IValidator<T>, IDisposable where T : class
     {
         protected ValidatorResult validatorResult = new ValidatorResult();
 
-        public ValidatorResult Validate(object entity)
+        public ValidatorResult Validate(T entity, ENUMContexteValidation peContexteValidation)
         {
             //>Declaration
             object[] loParams = { entity };
@@ -27,10 +27,15 @@ namespace Kevinovation.PoC.BusinessValidator.Validator
 
             foreach (var loOrderFunction in lloMethods)
             {
+                // on verifie la présence du contexte de validation
+                if (loOrderFunction.GetCustomAttributes<ContexteValidationAttribute>().Any() 
+                    && !loOrderFunction.GetCustomAttributes<ContexteValidationAttribute>().Any(poAttribut => ((ContexteValidationAttribute)poAttribut).ContexteValidation == peContexteValidation))
+                    continue;
+
                 // pour chacun des attributs de la fonction
                 foreach (PredicatValidatorAttribute loAttribute in loOrderFunction.GetCustomAttributes(typeof(PredicatValidatorAttribute)))
                 {
-                    // Verifie si la fonction devant être executé avant a déjà été traitée
+                    // verifie si la fonction devant être executé avant a déjà été traitée
                     if (lloResultExecutedMethods.TryGetValue(loAttribute.MethodName, out blnIsResultValid))
                     {
                         if (!blnIsResultValid)
