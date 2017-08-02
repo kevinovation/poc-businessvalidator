@@ -2,8 +2,8 @@
 
 namespace Kevinovation.PoC.BusinessValidator.Validator.Contract
 {
-    public interface IValidator
+    public interface IValidator<T> where T : class
     {
-        ValidatorResult Validate(object entity);
+        ValidatorResult Validate(T entity, ENUMContexteValidation peContexteValidation);
     }
 }

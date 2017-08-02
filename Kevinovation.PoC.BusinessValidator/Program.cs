@@ -14,25 +14,46 @@ namespace Kevinovation.PoC.BusinessValidator
         {
             IServiceCollection services = new ServiceCollection();
             ConfigureServices(services);
-
-            ValidatorResult result;
+            
             var loClient = new Client();
             loClient.Name = string.Empty;
             loClient.Contacts.Add(new Contact());
 
-            using (var loValidator = new ClientValidator())
-            {
-                result = loValidator.Validate(loClient);
-            }
-
-            Console.WriteLine(result.ToString());
+            ValiderCreation(loClient);
+            ValiderModification(loClient);
 
             Thread.CurrentThread.Join(10000);
         }
 
+        static void ValiderCreation(Client poClient)
+        {
+            ValidatorResult result;
+
+            Console.WriteLine("CREATION");
+            using (var loValidator = new ClientValidator())
+            {
+                result = loValidator.Validate(poClient, ENUMContexteValidation.Creation);
+            }
+
+            Console.WriteLine(result.ToString());
+        }
+
+        static void ValiderModification(Client poClient)
+        {
+            ValidatorResult result;
+
+            Console.WriteLine("MODIFICATION");
+            using (var loValidator = new ClientValidator())
+            {
+                result = loValidator.Validate(poClient, ENUMContexteValidation.Modification);
+            }
+
+            Console.WriteLine(result.ToString());
+        }
+
         static private void ConfigureServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddTransient<IValidator, ClientValidator>();
+            serviceCollection.AddTransient<IValidator<Client>, ClientValidator>();
         }
     }
 }
